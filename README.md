@@ -2,6 +2,8 @@
 
 This helps with cross db transaction rollback when needed and focus on dependent tree behavior, it is advisable to use single children dependent to avoid situation of one of the list of children failure and only few part are rollback.
 
+## Note
+Always set up `NODE_ENV` and if you are using db connection with non transaction/session support due to no clusters, set `NODE_ENV` to `local`.
 
 ## Example
 
