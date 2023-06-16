@@ -98,7 +98,7 @@ Here,  we have two parent which are nested and the `store` result are followed i
                      this.tenantModel.updateOne({
                       _id: store[0].tenant,
                       type: store[1].manager.type,
-                     }, {name: 'A', data: {sample: 1}})
+                     }, {name: 'A', data: {sample: 1}}, {session})
                      
                   },
                 ],
