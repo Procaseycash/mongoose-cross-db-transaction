@@ -23,11 +23,11 @@ $ npm install mongoose-cross-db-transaction
 ```
 - Once the installation is complete, you can import the library into your project using the following line of code:
 ```ts
-  const withTransaction = require('mongoose-cross-db-transaction');
+  const { withTransaction } = require('mongoose-cross-db-transaction');
 ```
 If you are using ES modules or TypeScript, you can import the library as follows:
 ```ts
-  import withTransaction from 'mongoose-cross-db-transaction';
+  import { withTransaction } from 'mongoose-cross-db-transaction';
 ```
 - You are now ready to use the mongoose-cross-db-transaction library in your project for managing cross-database transactions.
 ## Example
@@ -47,7 +47,7 @@ In this example, we have a parent action and a single children session. The `sto
 Here, only single children for parent and `store[0]` is the result of `action`.
 
 ```ts
-      import withTransaction from 'mongoose-cross-db-transaction';
+      import { withTransaction, SessionConfig } from 'mongoose-cross-db-transaction';
 
       let createdService: Service & any;
 
@@ -89,7 +89,7 @@ The `store` here is the progressive result from each `action` function passed to
 Here,  we have two parent which are nested and the `store` result are followed in order of `0,1`.
 
 ```ts
-  import withTransaction from 'mongoose-cross-db-transaction';
+  import { withTransaction, SessionConfig } from 'mongoose-cross-db-transaction';
 
   const transactionConfig: SessionConfig = {
             connection: this.keyManagerConnection,
