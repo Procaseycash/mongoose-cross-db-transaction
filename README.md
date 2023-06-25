@@ -1,27 +1,31 @@
 # Mongoose Cross Database Transaction
 
-This helps with cross db transaction rollback when needed and focus on dependent tree behavior, it is advisable to use single children dependent to avoid situation of one of the list of children failure and only few part are rollback.
+The **Mongoose Cross Database Transaction** library facilitates cross-database transaction rollback and focuses on dependent tree behavior. It is recommended to use a single children dependency to avoid situations where the failure of one child affects only a portion of the operation, leading to potential inconsistencies.
 
 ## Note
-Always set up `NODE_ENV` and if you are using db connection with non transaction/session support due to no clusters, set `NODE_ENV` to `local`.
+- It is important to set the NODE_ENV environment variable before using the mongoose-cross-db-transaction library. NODE_ENV specifies the execution environment of your application and affects how the library behaves.
+
+- If you are using a database connection that does not support transactions or sessions (particularly when there are no clusters involved), it is recommended to set NODE_ENV to local. This ensures that the library adapts its transaction handling accordingly to work effectively in such scenarios.
+
+- When NODE_ENV is set to local, it's important to note that the queries executed by the library will not provide full ACID (Atomicity, Consistency, Isolation, Durability) properties. This is due to the limitations of the underlying database connection. Therefore, ensure that your application's requirements align with the capabilities provided when using NODE_ENV as local.
 
 ## Example
 
-You can use the repository to view the test case to have clarity on use case but I will provide sample configuration snippet of code here.
+To gain a clear understanding of the `mongoose-cross-db-transaction` library's functionality, it is recommended to refer to the test cases available in the repository. These test cases provide comprehensive examples that showcase the library's capabilities. Additionally, here is a sample code snippet that illustrates the configuration:
 
-I will imagine two operations from different db but does have a reference in the order model but can cross db update, meaning one update in A should affect update B and failure in any to roll back.
+Consider a scenario where you have two operations originating from different databases, but they are interconnected through a reference in the Order model. These operations enable cross-database updates, meaning that a change made in Database A should reflect in Database B. In the event of a failure, the operations should be rolled back to maintain data consistency.
 
-We strongly assume each model uses a unique connection as they belong to different DB and model are per each of the database,
+It is important to note that each model should use a unique `connection` as they belong to different databases. Assign the appropriate model instance's connection to the action associated with that model. If you have models from different databases, designate one as the **parent action** and the other as the **childrenSession action** to establish the dependent relationship. Make sure to pass the respective **database connections** to the corresponding actions.
 
-Connection passed are of the each model instance uses in the `action` pertaining to where the model in `action` is used, if u have model from different DB, make one the parent action and the other the childrenSession action as dependent and pass it's own db connection.
+By following these guidelines and studying the provided examples, you will be able to effectively configure and utilize the mongoose-cross-db-transaction library for handling cross-database transactions.
 
 ### Simple Case 1
 
-The `store` here is the progressive result from each `action` function passed to the next `action` in order at which it is run for dependent parent-children relationship.
+In this example, we have a parent action and a single children session. The `store` variable represents the progressive result passed from one `action` to another in the specified order. The `action` function is where you define the logic for each operation within the transaction. The provided code showcases the creation of a new service and the generation of a new key using the `serviceModel` and `keyManagerModel`.
 
 Here, only single children for parent and `store[0]` is the result of `action`.
 
-```$
+```ts
       let createdService: Service & any;
 
       const transactionConfig: SessionConfig = {
@@ -55,12 +59,13 @@ Here, only single children for parent and `store[0]` is the result of `action`.
 
 
 ### Simple Case 2
+This example demonstrates a more complex scenario with nested actions. The `transactionConfig` object contains the parent action and two levels of children sessions. The code shows the update of a key manager, the generation of a new key, and the update of a tenant record. Each action is defined within its respective `action` function. The `store` variable allows you to access the results from previous actions.
 
 The `store` here is the progressive result from each `action` function passed to the next `action` in order at which it is run for dependent parent-children relationship.
 
 Here,  we have two parent which are nested and the `store` result are followed in order of `0,1`.
 
-```$
+```ts
   const transactionConfig: SessionConfig = {
             connection: this.keyManagerConnection,
             action: async (store, session) => {
@@ -111,7 +116,7 @@ Here,  we have two parent which are nested and the `store` result are followed i
 ```
 
 ### Sample case 3
-This type is demonstrated in the repo where we have more than one childrenSession within a single parent rather than nested children
+This case showcases multiple children sessions at the same level, without nesting. Each `childrenSessions` array contains independent actions. The parent action is followed by two children sessions, each with its own connection and action functions. This setup allows for parallel execution of the children actions. However, it's important to note that if one of the children sessions fails, the parent action will still be rolled back.
 
 ```$
   {
@@ -125,4 +130,4 @@ This type is demonstrated in the repo where we have more than one childrenSessio
   }
 ```
 
-The case above does means the parent action can be rollback where one child executing independently failed but case like this might exists where both children are independent but we advise using the dependent approach.
+** The case above does means the parent action can be rollback where one child executing independently failed but case like this might exists where both children are independent but we advise using the dependent approach.
