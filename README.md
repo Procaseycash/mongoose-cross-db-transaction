@@ -47,6 +47,8 @@ In this example, we have a parent action and a single children session. The `sto
 Here, only single children for parent and `store[0]` is the result of `action`.
 
 ```ts
+      import withTransaction from 'mongoose-cross-db-transaction';
+
       let createdService: Service & any;
 
       const transactionConfig: SessionConfig = {
@@ -87,6 +89,8 @@ The `store` here is the progressive result from each `action` function passed to
 Here,  we have two parent which are nested and the `store` result are followed in order of `0,1`.
 
 ```ts
+    import withTransaction from 'mongoose-cross-db-transaction';
+
   const transactionConfig: SessionConfig = {
             connection: this.keyManagerConnection,
             action: async (store, session) => {
