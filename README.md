@@ -9,6 +9,27 @@ The **Mongoose Cross Database Transaction** library facilitates cross-database t
 
 - When NODE_ENV is set to local, it's important to note that the queries executed by the library will not provide full ACID (Atomicity, Consistency, Isolation, Durability) properties. This is due to the limitations of the underlying database connection. Therefore, ensure that your application's requirements align with the capabilities provided when using NODE_ENV as local.
 
+## Documentation
+
+## Installation
+To install the `mongoose-cross-db-transaction` library, follow these steps:
+
+- Ensure you have Node.js and npm (Node Package Manager) installed on your machine.
+- Open your terminal or command prompt.
+- Navigate to your project directory.
+- Run the following command to install the library:
+```sh
+$ npm install mongoose-cross-db-transaction
+```
+- Once the installation is complete, you can import the library into your project using the following line of code:
+```ts
+  const withTransaction = require('mongoose-cross-db-transaction');
+```
+If you are using ES modules or TypeScript, you can import the library as follows:
+```ts
+  import withTransaction from 'mongoose-cross-db-transaction';
+```
+- You are now ready to use the mongoose-cross-db-transaction library in your project for managing cross-database transactions.
 ## Example
 
 To gain a clear understanding of the `mongoose-cross-db-transaction` library's functionality, it is recommended to refer to the test cases available in the repository. These test cases provide comprehensive examples that showcase the library's capabilities. Additionally, here is a sample code snippet that illustrates the configuration:
