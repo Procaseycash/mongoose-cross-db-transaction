@@ -89,7 +89,7 @@ The `store` here is the progressive result from each `action` function passed to
 Here,  we have two parent which are nested and the `store` result are followed in order of `0,1`.
 
 ```ts
-    import withTransaction from 'mongoose-cross-db-transaction';
+  import withTransaction from 'mongoose-cross-db-transaction';
 
   const transactionConfig: SessionConfig = {
             connection: this.keyManagerConnection,
@@ -143,7 +143,7 @@ Here,  we have two parent which are nested and the `store` result are followed i
 ### Sample case 3
 This case showcases multiple children sessions at the same level, without nesting. Each `childrenSessions` array contains independent actions. The parent action is followed by two children sessions, each with its own connection and action functions. This setup allows for parallel execution of the children actions. However, it's important to note that if one of the children sessions fails, the parent action will still be rolled back.
 
-```$
+```ts
   {
    connection,
    action,
