@@ -1,6 +1,6 @@
 {
   "name": "mongoose-cross-db-transaction",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "cross db transaction to multiple level use case",
   "main": "index.js",
   "scripts": {

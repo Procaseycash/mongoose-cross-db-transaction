@@ -76,8 +76,8 @@ describe('mongoose-cross-db-transaction', () => {
 
       const action3 = async (storeResult, session) => {
         expect(session).toEqual(connection);
-        expect(storeResult.length).toEqual(1);
-        expect(storeResult[0]).toEqual(1); // result of action 1;
+        expect(storeResult.length).toEqual(2);
+        expect(storeResult).toEqual([1, 2]); // result of action 1;
       };
 
       await withTransaction({
@@ -110,32 +110,36 @@ describe('mongoose-cross-db-transaction', () => {
 
       const action3 = async (storeResult, session) => {
         expect(session).toEqual(connection);
-        expect(storeResult.length).toEqual(1);
-        expect(storeResult[0]).toEqual(1); // result of action 1;
+        expect(storeResult.length).toEqual(2);
+        expect(storeResult).toEqual([1, 2]); // result of action 1-2;
         return 3;
       };
 
       const action4 = async (storeResult, session) => {
         expect(session).toEqual(connection);
-        expect(storeResult.length).toEqual(2);
+        expect(storeResult.length).toEqual(3);
+        expect(storeResult).toEqual([1, 2, 3]); // result of action 1-3;
         return 4;
       };
 
       const action5 = async (storeResult, session) => {
         expect(session).toEqual(connection);
         expect(storeResult.length).toEqual(2);
+        expect(storeResult).toEqual([1, 2]); // result of action 1 & 2 as the earlier runs from parent and first children they are grouped together;
         return 5;
       };
 
       const action6 = async (storeResult, session) => {
         expect(session).toEqual(connection);
         expect(storeResult.length).toEqual(3);
+        expect(storeResult).toEqual([1, 2, 5]); // result of action 1,2,5;
         return 6;
       };
 
       const action7 = async (storeResult, session) => {
         expect(session).toEqual(connection);
-        expect(storeResult.length).toEqual(3);
+        expect(storeResult.length).toEqual(4);
+        expect(storeResult).toEqual([1, 2, 5, 6]); // result of action 1,2,5,6;
         return 7;
       };
 
@@ -147,13 +151,13 @@ describe('mongoose-cross-db-transaction', () => {
             connection,
             action: action2,
             childrenSessions: [
+              { connection, action: action3 },
               { connection, action: action4 },
-              { connection, action: action5 },
             ],
           },
           {
             connection,
-            action: action3,
+            action: action5,
             childrenSessions: [
               { connection, action: action6 },
               { connection, action: action7 },

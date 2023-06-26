@@ -141,18 +141,45 @@ Here,  we have two parent which are nested and the `store` result are followed i
 ```
 
 ### Sample case 3
-This case showcases multiple children sessions at the same level, without nesting. Each `childrenSessions` array contains independent actions. The parent action is followed by two children sessions, each with its own connection and action functions. This setup allows for parallel execution of the children actions. However, it's important to note that if one of the children sessions fails, the parent action will still be rolled back.
+
+This case showcases multiple children sessions at the different levels. The progressive order for this is focus base on parent to children but not the inner children of the first children, in a case of failure, a proper rollback will likewise occur but we need to understand the progressive order of result.
 
 ```ts
-  {
-   connection,
-   action,
-    childrenSessions: [
-       {connection, action},
-      
-       {connection, action},
-    ]
-  }
+  const txnConfig = {
+                            connection,
+                            action,
+                            childrenSessions: [
+                              {
+                                connection,
+                                action: action2,
+                                childrenSessions: [
+                                  { connection, action: action3 },
+                                  { connection, action: action4 },
+                                ],
+                              },
+                              {
+                                connection,
+                                action: action5,
+                                childrenSessions: [
+                                  { connection, action: action6 },
+                                  { connection, action: action7 },
+                                ],
+                              },
+                            ],
+                          }
 ```
 
-** The case above does means the parent action can be rollback where one child executing independently failed but case like this might exists where both children are independent but we advise using the dependent approach.
+***Result of the transaction***
+
+You will noticed inner children of first children isn't captured for parent children 2 which is `action5` because they are same level and only `action`, `action2` are visible to it and its inner children results.
+<br>
+<table>
+<tr><th>SN</th><th>Action</th><th>Result</th></tr>
+<tr><td>1</td><td>action</td><td>[]</td></tr>
+<tr><td>2</td><td>action2</td><td>[1]</td></tr>
+<tr><td>3</td><td>action3</td><td>[1, 2]</td></tr>
+<tr><td>4</td><td>action4</td><td>[1, 2, 3]</td></tr>
+<tr><td>5</td><td>action5</td><td>[1, 2]</td></tr>
+<tr><td>6</td><td>action6</td><td>[1, 2, 5]</td></tr>
+<tr><td>7</td><td>action7</td><td>[1, 2, 5, 6]</td></tr>
+</table>

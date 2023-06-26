@@ -27,31 +27,28 @@ export const withTransaction = async (config: SessionConfig) => {
     ...store: any[]
   ) => {
     if (!sessionConfigs || !sessionConfigs.length) return true;
-
-    return Promise.all(
-      sessionConfigs.map(async (sessionConfig: SessionConfig) => {
-        const { connection, action, childrenSessions } = sessionConfig;
-        const childSession: ClientSession = await connection.startSession();
-        allSessions.push(childSession);
-        await childSession.withTransaction(async () => {
-          const result = await action?.(
-            store,
-            isLocal ? undefined : childSession,
-          );
-          store.push(result);
-          await withChildTransaction(childrenSessions || [], ...store);
-          return true;
-        }, transactionOptions);
-      }) as any,
-    );
+    for await (let sessionConfig of sessionConfigs) {
+      const { connection, action, childrenSessions } = sessionConfig;
+      const childSession: ClientSession = await connection.startSession();
+      allSessions.push(childSession);
+      const _session = isLocal ? undefined : childSession;
+      await childSession.withTransaction(async () => {
+        const result = await action?.(store, _session);
+        store.push(result);
+        await withChildTransaction(childrenSessions || [], ...store);
+        return true;
+      }, transactionOptions);
+    }
+    return true;
   };
 
   try {
     const { connection, action, childrenSessions } = config;
     const session: ClientSession = await connection.startSession();
     allSessions.push(session);
+    const _session = isLocal ? undefined : session;
     await session.withTransaction(async () => {
-      const result = await action?.([], isLocal ? undefined : session);
+      const result = await action?.([], _session);
       await withChildTransaction(childrenSessions || [], result);
       return true;
     }, transactionOptions);
